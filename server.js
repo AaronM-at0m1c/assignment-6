@@ -92,6 +92,7 @@ app.get('/api/courses', (req, res) => {
 app.get('/api/courses/:id', idValidation('id'), (req, res) => { 
     const id = parseInt(req.params.id); 
     db.get('SELECT * FROM courses WHERE id = ?', [id], (err, row) => { 
+        if (!row) return res.status(404).json({ error: 'Course not found' });
         res.json(row); 
     }); 
 });
@@ -111,12 +112,13 @@ app.post('/api/courses', courseValidation, handleValidationErrors, (req, res) =>
 })
 
 // PUT an update to a course by id
-app.put('/api/courses/:id', courseValidation, handleValidationErrors, (req, res) => { 
+app.put('/api/courses/:id', courseValidation, handleValidationErrors, idValidation('id'), (req, res) => { 
     const id = req.params.id; 
     const { courseCode, title, credits, description, semester } = req.body; 
     db.run(` UPDATE courses SET courseCode = ?, title = ?, credits = ?, description = ?, semester = ? WHERE id = ? 
         `, [courseCode, title, credits, description, semester, id], 
         function(err) { 
+            if (this.changes === 0) return res.status(404).json({ error: 'Course not found' });
             res.json({ message: `Course updated` }); 
         }
     ); 
@@ -126,6 +128,7 @@ app.put('/api/courses/:id', courseValidation, handleValidationErrors, (req, res)
 app.delete('/api/courses/:id', idValidation('id'), (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM courses WHERE id = ?', [id], function(err) {
+        if (this.changes === 0) return res.status(404).json({ error: 'Course not found' });
         res.json({ message: 'Course deleted' });
     });
 });
