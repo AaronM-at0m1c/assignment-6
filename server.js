@@ -129,7 +129,7 @@ app.delete('/api/courses/:id', idValidation('id'), (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM courses WHERE id = ?', [id], function(err) {
         if (this.changes === 0) return res.status(404).json({ error: 'Course not found' });
-        res.json({ message: 'Course deleted' });
+        res.json({ message: `Course deleted` });
     });
 });
 
