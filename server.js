@@ -68,6 +68,14 @@ const idValidation = (field) => (req, res, next) => {
     next();
 };
 
+// Error handle invaid json body
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON in request body' });
+  }
+  next(err);
+});
+
 // Connect to university database
 const db = new sqlite3.Database('./database/university.db');
 
